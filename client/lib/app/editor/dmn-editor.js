@@ -247,12 +247,13 @@ DmnEditor.prototype.resize = function() {
   var viewer = modeler.getActiveViewer();
 
   if (this.getActiveEditorName() === 'diagram') {
-    sheetOrCanvas = viewer.get('canvas');
+    sheetOrCanvas = viewer.get('canvas', false);
   } else {
-    sheetOrCanvas = viewer.get('sheet');
+    sheetOrCanvas = viewer.get('sheet', false);
   }
 
-  if (typeof sheetOrCanvas.resized === 'function') {
+  // not every editor is interested in that event
+  if (sheetOrCanvas && typeof sheetOrCanvas.resized === 'function') {
     sheetOrCanvas.resized();
   }
 };
