@@ -55,6 +55,9 @@ function App(options) {
 
   BaseComponent.call(this, options);
 
+
+  this.state = {};
+
   this.layout = {
     propertiesPanel: {
       open: false,
@@ -442,6 +445,7 @@ App.prototype.render = function() {
   var html =
     <div className="app" onDragover={ fileDrop(this.compose('openFiles')) }>
       <ModalOverlay
+        initializeState={this.initializeState.bind(this)}
         isActive={ this._activeOverlay }
         content={ this._overlayContent }
         events={ this.events }
@@ -704,6 +708,7 @@ App.prototype.triggerAction = function(action, firstArg, secondArg) {
   }
 
   if (action === 'show-deployment-config') {
+    this.setState({ DeploymentConfig: { } });
     return this.toggleOverlay('deploymentConfig');
   }
 
@@ -1640,6 +1645,48 @@ App.prototype.recheckTabContent = function(tab) {
     });
 
   });
+};
+
+/**
+ * Sets new App state
+ * @param newState
+ */
+App.prototype.setState = function(newState) {
+  this.state = assign({}, this.state, newState);
+};
+
+/**
+ * Initializes state of a specific component
+ * @param key
+ * @param value
+ */
+App.prototype.initializeState = function(options) {
+  if (!options || options && (!options.key || !options.self)) {
+    return new Error('key must be provided');
+  }
+
+  var self = options.self,
+      key = options.key,
+      initialState = options.self.initialState,
+      newAppState = {};
+
+
+  if (this.state[key]) {
+    self.state = this.state[key];
+  } else {
+    newAppState[key] = initialState;
+    this.setState(newAppState);
+    self.state = newAppState[key];
+  }
+
+
+  self.setState = (newState) => {
+    var state = this.state[key];
+    newAppState[key] = assign({}, state, newState);
+    this.setState(newAppState);
+    self.state = newAppState[key];
+    this.emit('changed');
+  };
 };
 
 

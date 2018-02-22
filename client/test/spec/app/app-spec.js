@@ -329,6 +329,37 @@ describe('App', function() {
 
       });
 
+      it('should show deployment status', function() {
+        // when
+        app.toggleOverlay('deploymentConfig');
+        app.setState({ DeploymentConfig: { status: 'LOADING' } });
+        var tree = render(app);
+
+
+        // then
+        // config modal should show
+        expect(select('.overlay-container .loading', tree)).to.exist;
+
+        //when
+        app.setState({ DeploymentConfig: { status: 'ERROR' } });
+        tree = render(app);
+
+        // then
+        // config modal should show
+        expect(select('.deployment-configuration .status.error', tree)).to.exist;
+
+
+        //when
+        app.setState({ DeploymentConfig: { status: 'SUCCESS' } });
+        tree = render(app);
+
+        // then
+        // config modal should show
+        expect(select('.deployment-configuration .status.success', tree)).to.exist;
+
+      });
+
+
     });
 
 
@@ -2575,6 +2606,52 @@ describe('App', function() {
 
 
 
+  });
+
+  describe('state management', function() {
+    it('app should have empty initial state', function() {
+      expect(app.state).to.eql({});
+    });
+
+    it('component state should be initialized with its initial state', function() {
+      // given
+      var initializeState = app.initializeState.bind(app);
+      var expectedComponentState = { foo: 'bar' };
+      var SomeComponent = function(options) {
+        this.initialState = expectedComponentState;
+        options.initializeState({ self: this, key: 'SomeComponent' });
+      };
+
+      // when
+      var someComponent = new SomeComponent({ initializeState: initializeState });
+
+
+      //then
+      var expectedAppState = { 'SomeComponent': expectedComponentState };
+      expect(someComponent.state).to.eql(expectedComponentState);
+      expect(app.state).to.eql(expectedAppState);
+
+    });
+
+    it('component setState should change component state', function() {
+      // given
+      var initializeState = app.initializeState.bind(app);
+      var SomeComponent = function(options) {
+        this.initialState = { foo: 'bar' };
+        options.initializeState({ self: this, key: 'SomeComponent' });
+      };
+
+      // when
+      var someComponent = new SomeComponent({ initializeState: initializeState });
+      var expectedComponentState = { foo: 'foo' };
+      someComponent.setState({ foo: 'foo' });
+
+
+      //then
+      var expectedAppState = { 'SomeComponent': expectedComponentState };
+      expect(someComponent.state).to.eql(expectedComponentState);
+      expect(app.state).to.eql(expectedAppState);
+    });
   });
 
 });
