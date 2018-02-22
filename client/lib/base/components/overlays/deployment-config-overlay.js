@@ -29,14 +29,14 @@ var DeploymentConfig = function(options) {
   this.submitDeploymentConfigForm = function(e) {
     e.preventDefault();
     this.setState({ status: 'LOADING' });
-    events.emit('deploy:bpmn', {
+    events.emit('deploy', {
       deploymentName: this.deploymentName,
       tenantId: this.tenantId
     }, (err) => {
       if (err) {
         this.setState({ status: 'ERROR', message: err.message });
       } else {
-        this.setState({ status: 'SUCCESS', message: 'Process deployed successfully.' });
+        this.setState({ status: 'SUCCESS', message: 'Deployment was done successfully.' });
       }
 
     });
